@@ -27,7 +27,7 @@ def main():
         source_path = line[0]
         filename = source_path.split('/')[-1]
         current_path = './' + args.image_folder + '/IMG/' + filename
-        image = cv2.imread(current_path)
+        image = cv2.cvtColor(cv2.imread(current_path), cv2.COLOR_BGR2RGB)
         images.append(image)
         #current steering
         measurement = float(line[3])
@@ -41,14 +41,14 @@ def main():
         source_path = line[1]
         filename = source_path.split('/')[-1]
         current_path = './' + args.image_folder + '/IMG/' + filename
-        image = cv2.imread(current_path)
+        image = cv2.cvtColor(cv2.imread(current_path), cv2.COLOR_BGR2RGB)
         images.append(image)
 
         # right image
         source_path = line[2]
         filename = source_path.split('/')[-1]
         current_path = './' + args.image_folder + '/IMG/' + filename
-        image = cv2.imread(current_path)
+        image = cv2.cvtColor(cv2.imread(current_path), cv2.COLOR_BGR2RGB)
         images.append(image)
 
         # create adjusted steering measurements for the side camera images
