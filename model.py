@@ -2,7 +2,7 @@ import numpy as np
 import argparse
 import pickle
 from keras.models import Sequential
-from keras.layers import Flatten,Dense, Lambda
+from keras.layers import Flatten, Dense, Lambda, Cropping2D
 from keras.layers.convolutional import Conv2D
 from keras.layers.pooling import MaxPooling2D
 from tensorflow.compat.v1 import ConfigProto
@@ -33,6 +33,8 @@ def main():
     # Preprocessing
     # Normalize and mean center the image values
     model.add(Lambda(lambda x: x/255.0 -0.5, input_shape=(160,320,3)))
+    #crop at top and bottom of image
+    model.add(Cropping2D(cropping=((70,25),(0,0))))
 
     # add layers
     model.add(Conv2D(6,5,activation="relu"))
