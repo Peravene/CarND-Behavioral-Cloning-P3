@@ -19,7 +19,7 @@ def main():
     )
     args = parser.parse_args()
 
-    loadeddata = pickle.load(open(  './' + args.image_folder + '/data.pickle', "rb" ))
+    loadeddata = pickle.load(open(  './' + args.image_folder + '/dataAug.pickle', "rb" ))
     X_train = loadeddata.get('X_train')
     y_train = loadeddata.get('y_train')
     print(X_train.shape)

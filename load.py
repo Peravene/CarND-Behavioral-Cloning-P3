@@ -30,9 +30,12 @@ def main():
         images.append(image)
         measurement = float(line[3])
         measurements.append(measurement)
+        #flip also the image
+        images.append(cv2.flip(image,1))
+        measurements.append(measurement*-1)
 
     data = {'X_train':  np.array(images), 'y_train': np.array(measurements)}
-    pickle.dump(data, open( './' + args.image_folder + '/data.pickle', "wb" ))
+    pickle.dump(data, open( './' + args.image_folder + '/dataAug.pickle', "wb" ))
 
 if __name__ == '__main__':
     main()
