@@ -26,18 +26,21 @@ def main():
     
     image_list = [image_file for image_file in image_list if os.path.splitext(image_file)[1][1:].lower() in IMAGE_EXT]
 
-    #two methods of naming output video to handle varying environments
-    video_file_1 = args.image_folder + '.mp4'
-    video_file_2 = args.image_folder + 'output_video.mp4'
-
     print("Creating video {}, FPS={}".format(args.image_folder, args.fps))
     clip = ImageSequenceClip(image_list, fps=args.fps)
     
+    #two methods of naming output video to handle varying environments
+    video_file_1 = args.image_folder + '/output.mp4'
+    video_file_2 = args.image_folder + 'output_video.mp4'
+
     try:
         clip.write_videofile(video_file_1)
     except:
         clip.write_videofile(video_file_2)
 
+    # remove images
+    for image in image_list:
+        os.remove(image)
 
 if __name__ == '__main__':
     main()
