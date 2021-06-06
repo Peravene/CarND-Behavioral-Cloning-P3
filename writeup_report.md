@@ -1,10 +1,4 @@
-# **Behavioral Cloning** 
-
-## Writeup Template
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
+# **Behavioral Cloning**
 
 **Behavioral Cloning Project**
 
@@ -127,3 +121,22 @@ After the collection process, I had X number of data points. I then preprocessed
 I finally randomly shuffled the data set and put Y% of the data into a validation set. 
 
 I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+
+
+## Stuff to Consider:
+- Training:
+    - use of generators to overcome memory limitations
+    - use of retraining available models
+    - use of earlyStopping: https://keras.io/api/callbacks/early_stopping/
+- Preprocessing:
+    - resize the images down by 2
+    - tune the parameter for left and right angle correction
+    - raining images are loaded in BGR colorspace using cv2 while drive.py load images in RGB to predict the steering angles.
+- Data Collection:
+    - Use an analog joystick to gather data
+    - at least 40k samples
+    - two or three laps of center lane driving
+    - one lap of recovery driving from the sides
+    - one lap focusing on driving smoothly around curves
+    - driving counter-clockwise can help the model generalize
+    - collecting data from the second track can also help generalize the model 
