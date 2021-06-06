@@ -9,7 +9,7 @@ from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 from keras.models import Model
 import matplotlib.pyplot as plt
-
+import tensorflow as tf
 
 def main():
     parser = argparse.ArgumentParser(description='Train Network.')
