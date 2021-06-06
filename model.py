@@ -36,21 +36,39 @@ def main():
     #crop at top and bottom of image
     model.add(Cropping2D(cropping=((70,25),(0,0))))
 
-    # add layers
-    model.add(Conv2D(6,5,activation="relu"))
-    model.add(MaxPooling2D())
-    model.add(Conv2D(6,5,activation="relu"))
-    model.add(MaxPooling2D())
+    #############################
+    # LeNet architecture
+    #############################
+    # model.add(Conv2D(6,5,activation="relu"))
+    # model.add(MaxPooling2D())
+    # model.add(Conv2D(6,5,activation="relu"))
+    # model.add(MaxPooling2D())
+    # model.add(Flatten())
+    # model.add(Dense(120))
+    # model.add(Dense(84))
+    # model.add(Dense(1))
+
+    #############################
+    # NVidia architecture
+    #############################
+    model.add(Conv2D(24, 5, strides=2, activation="relu"))
+    model.add(Conv2D(36, 5, strides=2, activation="relu"))
+    model.add(Conv2D(48, 5, strides=2, activation="relu"))
+    model.add(Conv2D(64, 3, activation="relu"))
+    model.add(Conv2D(64, 3, activation="relu"))
     model.add(Flatten())
-    model.add(Dense(120))
-    model.add(Dense(84))
+    model.add(Dense(1164))
+    model.add(Dense(100))
+    model.add(Dense(50))
+    model.add(Dense(10))
     model.add(Dense(1))
+
     model.summary()
 
     # build architecture
     model.compile(loss='mse', optimizer='adam')
     # schuffle and split data
-    model.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=5)
+    model.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=3)
 
     model.save('model.h5')
 
