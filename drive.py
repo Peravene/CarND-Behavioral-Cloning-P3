@@ -116,7 +116,7 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
-    # these lines are needed as the GPU memory got full
+    # these lines are needed as the 4GB GPU memory got full
     config = ConfigProto()
     config.gpu_options.allow_growth = True
     session = InteractiveSession(config=config)

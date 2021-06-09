@@ -7,15 +7,16 @@ import pickle
 def main():
     parser = argparse.ArgumentParser(description='Load data from traning mode.')
     parser.add_argument(
-        'image_folder',
+        'data_folder',
         type=str,
         default='',
-        help='Path to image folder. The video will be created from these images.'
+        help='Path to data folder, which is filled within training mode.'
     )
     args = parser.parse_args()
 
+    # read CSV file line by line
     lines = []
-    with open('./' + args.image_folder + '/driving_log.csv') as csvfile:
+    with open('./' + args.data_folder + '/driving_log.csv') as csvfile:
         reader = csv.reader(csvfile)
         for line in reader:
             lines.append(line)
@@ -23,31 +24,34 @@ def main():
     images = []
     measurements = []
     for line in lines:
-        #center image
+        # read center image
         source_path = line[0]
         filename = source_path.split('/')[-1]
-        current_path = './' + args.image_folder + '/IMG/' + filename
+        current_path = './' + args.data_folder + '/IMG/' + filename
+        # openCV reads the image in BGR format, which needs to be converted to RGB
         image = cv2.cvtColor(cv2.imread(current_path), cv2.COLOR_BGR2RGB)
         images.append(image)
-        #current steering
+        # read current steering
         measurement = float(line[3])
         measurements.append(measurement)
 
-        #flip also the center image
+        # use also flipped center image
         images.append(cv2.flip(image,1))
         measurements.append(measurement*-1)
 
-        # left image
+        # read left image
         source_path = line[1]
         filename = source_path.split('/')[-1]
-        current_path = './' + args.image_folder + '/IMG/' + filename
+        current_path = './' + args.data_folder + '/IMG/' + filename
+        # openCV reads the image in BGR format, which needs to be converted to RGB
         image = cv2.cvtColor(cv2.imread(current_path), cv2.COLOR_BGR2RGB)
         images.append(image)
 
-        # right image
+        # read right image
         source_path = line[2]
         filename = source_path.split('/')[-1]
-        current_path = './' + args.image_folder + '/IMG/' + filename
+        current_path = './' + args.data_folder + '/IMG/' + filename
+        # openCV reads the image in BGR format, which needs to be converted to RGB
         image = cv2.cvtColor(cv2.imread(current_path), cv2.COLOR_BGR2RGB)
         images.append(image)
 
@@ -56,8 +60,9 @@ def main():
         measurements.append(measurement + correction) # Left
         measurements.append(measurement - correction) # right
 
+    # save the read image into a pickle
     data = {'X_train':  np.array(images), 'y_train': np.array(measurements)}
-    pickle.dump(data, open( './' + args.image_folder + '/dataAug.pickle', "wb" ), protocol=4)
+    pickle.dump(data, open( './' + args.data_folder + '/dataAug.pickle', "wb" ), protocol=4)
 
 if __name__ == '__main__':
     main()
