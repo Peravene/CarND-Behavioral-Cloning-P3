@@ -25,11 +25,8 @@ def main():
     measurements = []
     for line in lines:
         # read center image
-        source_path = line[0]
-        filename = source_path.split('/')[-1]
-        current_path = './' + args.data_folder + '/IMG/' + filename
         # openCV reads the image in BGR format, which needs to be converted to RGB
-        image = cv2.cvtColor(cv2.imread(current_path), cv2.COLOR_BGR2RGB)
+        image = cv2.cvtColor(cv2.imread(line[0]), cv2.COLOR_BGR2RGB)
         images.append(image)
         # read current steering
         measurement = float(line[3])
@@ -40,19 +37,13 @@ def main():
         measurements.append(measurement*-1)
 
         # read left image
-        source_path = line[1]
-        filename = source_path.split('/')[-1]
-        current_path = './' + args.data_folder + '/IMG/' + filename
         # openCV reads the image in BGR format, which needs to be converted to RGB
-        image = cv2.cvtColor(cv2.imread(current_path), cv2.COLOR_BGR2RGB)
+        image = cv2.cvtColor(cv2.imread(line[1]), cv2.COLOR_BGR2RGB)
         images.append(image)
 
         # read right image
-        source_path = line[2]
-        filename = source_path.split('/')[-1]
-        current_path = './' + args.data_folder + '/IMG/' + filename
         # openCV reads the image in BGR format, which needs to be converted to RGB
-        image = cv2.cvtColor(cv2.imread(current_path), cv2.COLOR_BGR2RGB)
+        image = cv2.cvtColor(cv2.imread(line[2]), cv2.COLOR_BGR2RGB)
         images.append(image)
 
         # create adjusted steering measurements for the side camera images

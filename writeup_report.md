@@ -35,6 +35,7 @@ The goals / steps of this project are the following:
 
 My project includes the following files:
 * load.py for loading the images and labels into a pickle file
+  * At the end generator was used instead in the model.py
 * model.py containing the script to create and train the model
 * drive.py for driving the car in autonomous mode
 * model.h5 containing a trained convolution neural network
@@ -55,17 +56,19 @@ The model.py file contains the code for training and saving the convolution neur
 ### Model Architecture and Training Strategy
 #### 1. Solution Design Approach
 
-My strategy was to implement the content from the project lecture step by step to see hands on how iteratively the performance of the model improves. So first I verified the training and simulation pipeline by using only one flat and dense layer (model.py lines 53-54). This was only enough to keep the vehicle for a very short time in the lane. but at least the framework was verified to be functional.
+My strategy was to implement the content from the project lecture step by step to see hands on how iteratively the performance of the model improves. So first I verified the training and simulation pipeline by using only one flat and dense layer (model.py lines 109-110). This was only enough to keep the vehicle for a very short time in the lane but at least the framework was verified to be functional.
 
-Then I implemented the already known LeNet architecture (model.py lines 53-54). With it the vehicle was at least driving in the straight road. But was not able to steer int the curve.
+Then I implemented the already known LeNet architecture (model.py lines 115-122). With it the vehicle was at least driving in the straight road. But was not able to steer int the curve.
 
-As in the course the NVIDIA self driving architecture was mentioned to be powerful, I have implemented the model from https://developer.nvidia.com/blog/deep-learning-self-driving-cars/(model.py lines 65-80). Surprisingly it performed very well. With this architecture it was able to get the vehicle at least a full lap auto-steered.
+As in the course the NVIDIA self driving architecture was mentioned to be powerful, I have implemented the model from https://developer.nvidia.com/blog/deep-learning-self-driving-cars (model.py lines 127-137). Surprisingly it performed very well. With this architecture it was able to get the vehicle at least a full lap auto-steered.
 
 In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set (80/20 ratio). Additionally I have plotted the mean squared error of the training and validation set: ![alt text][imageLoss]
 
-At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
+At the end of the process, the vehicle is able to drive autonomously around boths track without leaving the road.
 
-Here is a video of the recording: [video.mp4](./video.mp4)
+Here is a video of the recordinga:
+- [video.mp4](./video.mp4)
+- [video2.mp4](./video2.mp4)
 
 We can still see that the MSE is lower than the one from the validation set. This implies that the model is overfitting. Fortunately not much that the first track is performing well. Anyway I have tested it on the second track where it was then failing.
 #### 2. Final Model Architecture
@@ -113,60 +116,31 @@ And also a plot of it:
 
 #### 3. Model parameter tuning
 
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 3. I used an adam optimizer so that manually training the learning rate wasn't necessary (model.py line 83).
+I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 5. I used an adam optimizer so that manually training the learning rate wasn't necessary (model.py line 145).
 #### 4. Appropriate training data
 
 I tried first with recording my own data set by driving one lap with the keyboard. But here i was failing to be able to keep the car at all in the lane with even the LeNet architecture. I assume that my control behavior with the keyboard is not well enough.
 
 So to concentrate first on the pipeline I have used the provided dataset. In the generated [./data/IMG.mp4](./data/IMG.mp4) I could see that several laps in both directions have been driven.
 
-The dataset consist of center, left and right images. I have used all of them. (load.py 27-61) For the left and right image an steering correction of 0.2 degree was sufficient. The center image was flipped to augment additionally.
+The dataset consist of center, left and right images. I have used all of them. (load.py 27-61 or model.py33-56) For the left and right image an steering correction of 0.2 degree was sufficient. The center image was flipped to augment additionally.
 
-After the collection process, I had 32144 number of data points. I then preprocessed this data by normalizing the RGB values. Also the area of sky and egine hood had been cropped out. (model.py 44-48) 
+After the collection process, I had 32144 number of data points. I then preprocessed this data by normalizing the RGB values. Also the area of sky and engine hood had been cropped out. (model.py 100-104) 
 ![alt text][imageCrop]
 
 I finally randomly shuffled the data set and put 20% of the data into a validation set.
 
-#### backup
 
-Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, recovering from the left and right sides of the road ... 
+With the provided data set the vehicle was only autonomously steerable in the first track but not the second. So I knew that the model architecture itself was sufficient, but not the training data. Therefore I created my own dataset.
 
-To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
+First I recorded on track one. I have driven it clockwise and anticlockwise several laps as much as possible in the lane center:
+- ./ownDataFront/IMG/output.mp4
+- ./ownDataBack/IMG/output.mp4
 
-![alt text][image2]
+Additionally to train the model to return back from lane border to the lane center I have recorded those scenarios:
+- ./ownDataReturn/IMG/output.mp4
 
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
+As my goal was to increase also the performance on track two also there I recorded data for several laps.
+- ./ownDataTrack2Front/IMG/output.mp4
 
-![alt text][image3]
-![alt text][image4]
-![alt text][image5]
-
-Then I repeated this process on track two in order to get more data points.
-
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
-
-![alt text][image6]
-![alt text][image7]
-
-Etc ....
-
-The model contains dropout layers in order to reduce overfitting (model.py lines 21). 
-
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
-
-## Stuff to Consider:
-- Training:
-    - use of generators to overcome memory limitations
-    - use of retraining available models
-    - use of earlyStopping: https://keras.io/api/callbacks/early_stopping/
-- Preprocessing:
-    - resize the images down by 2
-    - tune the parameter for left and right angle correction
-- Data Collection:
-    - Use an analog joystick to gather data
-    - at least 40k samples
-    - two or three laps of center lane driving
-    - one lap of recovery driving from the sides
-    - one lap focusing on driving smoothly around curves
-    - driving counter-clockwise can help the model generalize
-    - collecting data from the second track can also help generalize the model 
+Finally I had 20879 frames recorded which results in 83516 images by applying the data augmentation steps mentioned above.

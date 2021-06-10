@@ -8,27 +8,83 @@ from keras.layers.pooling import MaxPooling2D
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 from keras.models import Model
+import sklearn
+from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import os
+import csv
+import math
+import random
+import cv2
+
+def generator(samples, batch_size=32):
+    num_samples = len(samples)
+    while 1: # Loop forever so the generator never terminates
+        random.shuffle(samples)
+        for offset in range(0, num_samples, batch_size):
+            batch_samples = samples[offset:offset+batch_size]
+
+            images = []
+            measurements = []
+            for line in batch_samples:
+                # read center image
+                # openCV reads the image in BGR format, which needs to be converted to RGB
+                image = cv2.cvtColor(cv2.imread(line[0]), cv2.COLOR_BGR2RGB)
+                images.append(image)
+                # read current steering
+                measurement = float(line[3])
+                measurements.append(measurement)
+
+                # use also flipped center image
+                images.append(cv2.flip(image,1))
+                measurements.append(measurement*-1)
+
+                # read left image
+                # openCV reads the image in BGR format, which needs to be converted to RGB
+                image = cv2.cvtColor(cv2.imread(line[1]), cv2.COLOR_BGR2RGB)
+                images.append(image)
+
+                # read right image
+                # openCV reads the image in BGR format, which needs to be converted to RGB
+                image = cv2.cvtColor(cv2.imread(line[2]), cv2.COLOR_BGR2RGB)
+                images.append(image)
+
+                # create adjusted steering measurements for the side camera images
+                correction = 0.2 # this is a parameter to tune
+                measurements.append(measurement + correction) # Left
+                measurements.append(measurement - correction) # right
+
+            # trim image to only see section with road
+            X_train = np.array(images)
+            y_train = np.array(measurements)
+            yield sklearn.utils.shuffle(X_train, y_train)
 
 def main():
     parser = argparse.ArgumentParser(description='Train Network.')
     parser.add_argument(
-        'pickle_file',
+        'data_folder',
         type=str,
         default='',
-        help='Path to pickle file, which will be used to train the model.'
+        help='Path to data folder, which is filled within training mode.'
     )
     args = parser.parse_args()
 
-    # as I have 32GB of RAM, I can load such big pickle files
-    loadeddata = pickle.load(open(args.pickle_file, "rb" ))
-    X_train = loadeddata.get('X_train')
-    y_train = loadeddata.get('y_train')
-    #print(X_train.shape)
-    #print(X_train[1,1,1,0])
-    #print(X_train[1,1,1,1])
-    #print(X_train[1,1,1,2])
+    samples = []
+    with open('./' + args.data_folder + '/driving_log.csv') as csvfile:
+        reader = csv.reader(csvfile)
+        for line in reader:
+            samples.append(line)
+
+    # split data in training and validation samples
+    train_samples, validation_samples = train_test_split(samples, test_size=0.2)
+
+    # Set our batch size
+    batch_size=32
+
+    # compile and train the model using the generator function
+    train_generator = generator(train_samples, batch_size=batch_size)
+    validation_generator = generator(validation_samples, batch_size=batch_size)
 
     # these lines are needed as the 4GB GPU memory got full
     config = ConfigProto()
@@ -88,7 +144,11 @@ def main():
     # build architecture
     model.compile(loss='mse', optimizer='adam')
     # shuffle and split data
-    history_object  = model.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=3, verbose=1)
+    history_object  = model.fit_generator(train_generator, \
+            steps_per_epoch=math.ceil(len(train_samples)/batch_size), \
+            validation_data=validation_generator, \
+            validation_steps=math.ceil(len(validation_samples)/batch_size), \
+            epochs=5, verbose=1)
 
     # print the keys contained in the history object
     print(history_object.history.keys())
